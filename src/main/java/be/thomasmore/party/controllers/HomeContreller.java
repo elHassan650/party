@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class HomeContreller {
    private String appName="Let's Party!!";
    private final String [] venueNames={"De Club","De Loods","De Hanger","Zapoi","Kuub","Cuba Libre"};
+    private final String [] parties={"Big Spring Party","Liberty 2021","Uppercuts","Zoetzuur","Oldies but goldies"};
     @GetMapping({"/","/home"})
     public String home(Model model) {
         model.addAttribute("appName",appName);
@@ -60,6 +61,52 @@ public class HomeContreller {
         return "venuedetails";
     }
 
+    @GetMapping("/partylist")
+    public String partylist(Model model){
+        model.addAttribute("appName",appName);
+        model.addAttribute("parties",parties);
+        return"partylist";
+    }
+
+    @GetMapping({"/partydetailsbyindex", "/partydetailsbyindex/{partyId}"})
+    public String partyDetails(Model model, @PathVariable(required = false) Integer partyId) {
+        model.addAttribute("party", (partyId>=0 && partyId < parties.length) ? parties[partyId] : null);
+        String party;
+        Integer prevIndex=partyId-1;
+        Integer nextIndex=partyId+1;
+        if(partyId!=null) {
+            if(partyId >= 0 & partyId < parties.length){
+                party= parties[partyId];
+                if(partyId==0){
+                    prevIndex=parties.length-1;
+                }
+                else {
+                    prevIndex=partyId-1;
+                }
+                if (partyId==parties.length-1){
+                    nextIndex=0;
+                }
+                else {
+                    nextIndex=partyId+1;
+                }
+            }
+            else party= null;
+        }
+        else party=null;
+
+        model.addAttribute("venueName",party);
+        model.addAttribute("prevIndex",prevIndex);
+        model.addAttribute("nextIndex",nextIndex);
+
+        return "partydetails";
+    }
+
+    @GetMapping({"/partydetails\", \"/partydetails/{party}"})
+    public String partydetails(Model model, @PathVariable(required = false) String party) {
+        model.addAttribute("party", party==null ? "--no venue specified--" : party);
+        return "partydetails";
+    }
+
     @GetMapping("/artistlist")
     public String artistslist(Model model){
         model.addAttribute("appName",appName);
@@ -72,11 +119,9 @@ public class HomeContreller {
 
         return"about";
     }
-    @GetMapping("/login")
-    public String login(Model model){
-        model.addAttribute("appName",appName);
 
-        return"login";
+
+
     }
 
-}
+
